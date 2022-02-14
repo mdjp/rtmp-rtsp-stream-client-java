@@ -177,7 +177,7 @@ open class RtspClient(private val connectCheckerRtsp: ConnectCheckerRtsp) {
             if (commandsManager.sps == null || commandsManager.pps == null) {
               semaphore.drainPermits()
               Log.i(TAG, "waiting for sps and pps")
-              semaphore.tryAcquire(5000, TimeUnit.MILLISECONDS)
+              semaphore.tryAcquire(15000, TimeUnit.MILLISECONDS)
             }
             if (commandsManager.sps == null || commandsManager.pps == null) {
               connectCheckerRtsp.onConnectionFailedRtsp("sps or pps is null")
@@ -191,12 +191,12 @@ open class RtspClient(private val connectCheckerRtsp: ConnectCheckerRtsp) {
           if (!tlsEnabled) {
             connectionSocket = Socket()
             val socketAddress: SocketAddress = InetSocketAddress(host, port)
-            connectionSocket?.connect(socketAddress, 5000)
+            connectionSocket?.connect(socketAddress, 115000)
           } else {
             connectionSocket = createSSlSocket(host, port)
             if (connectionSocket == null) throw IOException("Socket creation failed")
           }
-          connectionSocket?.soTimeout = 5000
+          connectionSocket?.soTimeout = 15000
           reader = BufferedReader(InputStreamReader(connectionSocket?.getInputStream()))
           val outputStream = connectionSocket?.getOutputStream()
           writer = BufferedWriter(OutputStreamWriter(outputStream))
@@ -323,7 +323,7 @@ open class RtspClient(private val connectCheckerRtsp: ConnectCheckerRtsp) {
   private fun isAlive(): Boolean {
     val connected = connectionSocket?.isConnected ?: false
     if (!checkServerAlive) return connected
-    val reachable = connectionSocket?.inetAddress?.isReachable(5000) ?: false
+    val reachable = connectionSocket?.inetAddress?.isReachable(15000) ?: false
     return if (connected && !reachable) false else connected
   }
 
